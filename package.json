@@ -3,13 +3,15 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "原環の大地 — ヴァルナ年代記 / playable exploration prototype",
+  "description": "原環の大地 ― ヴァルナ年代記 ―：古代生物が主役のオープンワールドARPGの設計書と垂直スライス",
   "scripts": {
     "dev": "vite --host 127.0.0.1 --port 5173",
-    "build": "tsc --noEmit && vite build",
+    "build": "node tools/make-icons.mjs && tsc --noEmit && vite build",
     "preview": "vite preview --host 127.0.0.1 --port 4173",
     "test": "tsx --test tests/*.test.ts",
-    "test:browser": "node scripts/smoke-test.mjs"
+    "test:browser": "node scripts/smoke-test.mjs",
+    "deploy": "npm run build && node tools/deploy-pages.mjs",
+    "verify": "npm test && node tools/actions.mjs && node tools/quests.mjs && node tools/orga.mjs && node tools/gamepad.mjs"
   },
   "dependencies": {
     "three": "^0.186.0"
@@ -30,5 +32,6 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "homepage": "https://sh0zy.github.io/varuna-chronicles/"
 }

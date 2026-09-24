@@ -8,14 +8,25 @@
 - 見た目と音は**手続き生成の仮素材**です（外部の素材は使っていません）。製品品質の見た目ではありません。
 - 製品版は Unreal Engine 5 を推奨しています（理由と前提は `docs/10_制作計画.md`）。
 
-## 遊び方
+## ブラウザで遊ぶ（公開版）
+
+**https://sh0zy.github.io/varuna-chronicles/**
+
+- インストール不要です。Edge・Chrome の最新版（WebGL2 対応）で開いてください。
+- 画面をクリックすると、マウスで視点を動かせます。タイトルの「全画面で遊ぶ」で全画面にできます。
+- **初回は読み込みに時間がかかります**（約1MBのプログラムの取得と、描画の準備で十数秒〜30秒ほど）。2回目以降は速くなります。
+- **オフライン対応**：一度開けば、通信がなくても遊べます。ブラウザの「アプリとしてインストール」も使えます。
+- 記録（セーブ）はブラウザの保存領域に入ります。別の端末とは共有されません。
+- **キーボード＋マウス、またはゲームパッドが必要です。** 画面に触れて操作する方法はまだありません。
+
+## 手元で動かす
 
 ```
 npm install
 npm run dev
 ```
 
-Edge か Chrome の最新版で http://127.0.0.1:5173/ を開きます。画面をクリックすると、マウスで視点を動かせます。WebGL2 が必要です。
+Edge か Chrome の最新版で http://127.0.0.1:5173/ を開きます。
 
 | 操作 | キーボード＋マウス | ゲームパッド |
 |---|---|---|
@@ -40,7 +51,17 @@ node tools/orga.mjs    # オルガの戦いを仕組みどおりに最後まで
 node tools/quests.mjs  # 依頼・遺跡・拠点の流れ
 node tools/gamepad.mjs # 仮想ゲームパッドでの入力経路
 node tools/play.mjs artifacts/play medium 1600 900  # 各地点の計測・撮影・記録と再読み込み
+node tools/webapp.mjs  # 本番ビルド（サブパス配下）とオフライン動作
+node tools/live-check.mjs  # 公開URLが実際に動くか
 ```
+
+## 公開（GitHub Pages）
+
+```
+npm run deploy   # ビルドして gh-pages ブランチへ配置
+```
+
+`main` にソースと設計書、`gh-pages` に本番ビルドが入ります。
 
 自動テストは Microsoft Edge（`C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe`）を使います。
 
