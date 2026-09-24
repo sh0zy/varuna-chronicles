@@ -1,0 +1,18 @@
+{
+  "name": "原環の大地 ― ヴァルナ年代記 ―",
+  "short_name": "ヴァルナ年代記",
+  "description": "古代生物が息づく大地を歩く、探索アクションRPGの垂直スライス（試作）。",
+  "lang": "ja",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#0c110c",
+  "theme_color": "#172820",
+  "categories": ["games"],
+  "icons": [
+    { "src": "./icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "./icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "./icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

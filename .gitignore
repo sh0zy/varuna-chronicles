@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.npm-cache/
+artifacts/
+*.log
+.DS_Store
+
+# 自動検証の出力
+artifacts-*.log

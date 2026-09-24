@@ -1,0 +1,44 @@
+// 仮想のゲームパッドを差し込み、パッドの入力経路を確かめる（実機の代わりではない）
+import puppeteer from 'puppeteer-core';
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const b = await puppeteer.launch({ executablePath: 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe', headless: 'new', args: ['--use-angle=d3d11','--enable-gpu','--ignore-gpu-blocklist'], defaultViewport: { width: 960, height: 540 } });
+const p = await b.newPage();
+await p.evaluateOnNewDocument(() => {
+  localStorage.clear();
+  const pad = { id: 'virtual', index: 0, connected: true, mapping: 'standard', axes: [0, 0, 0, 0], buttons: Array.from({ length: 17 }, () => ({ pressed: false, value: 0, touched: false })), timestamp: 0 };
+  window.__pad = pad;
+  navigator.getGamepads = () => [pad];
+});
+await p.goto('http://127.0.0.1:5173/', { waitUntil: 'load' });
+await p.waitForFunction(() => window.__game && window.__game.extra().mode === 'title', { timeout: 120000 });
+const btn = async (i, ms = 120) => { await p.evaluate((i) => { window.__pad.buttons[i].pressed = true; window.__pad.buttons[i].value = 1; }, i); await sleep(ms); await p.evaluate((i) => { window.__pad.buttons[i].pressed = false; window.__pad.buttons[i].value = 0; }, i); await sleep(150); };
+const res = [];
+const check = (n, ok, d = '') => { res.push(ok); console.log(ok ? 'PASS' : 'FAIL', n, d); };
+// タイトルを A で決める（フォーカスは十字キーで移動）
+await btn(13); console.log('focus1', await p.evaluate(() => document.activeElement?.tagName + ':' + document.activeElement?.textContent)); await btn(13); console.log('focus2', await p.evaluate(() => document.activeElement?.tagName + ':' + document.activeElement?.textContent)); await btn(12);
+const focused = await p.evaluate(() => document.activeElement?.textContent);
+await btn(0); await sleep(500);
+const inCreate = await p.evaluate(() => window.__game.game.mode);
+check('十字キーでタイトルの項目を選び、A で決定', inCreate === 'create', `${focused} → ${inCreate}`);
+await p.evaluate(() => [...document.querySelectorAll('.create button')].find((b) => b.textContent.includes('旅立つ')).focus());
+await btn(0); await sleep(400);
+for (let i = 0; i < 3; i++) await btn(0);
+check('A でイントロを進めて操作に入る', (await p.evaluate(() => window.__game.game.mode)) === 'play' && !(await p.evaluate(() => document.querySelector('.intro:not(.out)'))));
+const p0 = await p.evaluate(() => window.__game.game.player.pos.toArray());
+await p.evaluate(() => { window.__pad.axes[1] = -1; }); await sleep(1500); await p.evaluate(() => { window.__pad.axes[1] = 0; });
+const p1 = await p.evaluate(() => window.__game.game.player.pos.toArray());
+check('左スティックで歩く', Math.hypot(p1[0] - p0[0], p1[2] - p0[2]) > 2, Math.hypot(p1[0] - p0[0], p1[2] - p0[2]).toFixed(2));
+const y0 = await p.evaluate(() => window.__game.game.cam.yaw);
+await p.evaluate(() => { window.__pad.axes[2] = 1; }); await sleep(500); await p.evaluate(() => { window.__pad.axes[2] = 0; });
+const y1 = await p.evaluate(() => window.__game.game.cam.yaw);
+check('右スティックで視点が回る', Math.abs(y1 - y0) > 0.3, (y1 - y0).toFixed(2));
+await btn(1, 60);
+check('B で回避', (await p.evaluate(() => window.__game.game.player.dodgeT)) > 0 || (await p.evaluate(() => window.__game.game.player.stamina)) < 100);
+const glyph = await p.evaluate(() => window.__game.game.input.glyph('interact'));
+check('操作の表示がパッドの記号に切り替わる', glyph === 'A', glyph);
+await btn(8); await sleep(300);
+check('View で手帳を開く', (await p.evaluate(() => window.__game.game.mode)) === 'menu');
+await btn(1); await sleep(300);
+check('B で手帳を閉じる', (await p.evaluate(() => window.__game.game.mode)) === 'play');
+console.log(`${res.filter(Boolean).length}/${res.length} passed`);
+await b.close();
